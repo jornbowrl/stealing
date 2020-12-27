@@ -1,0 +1,11 @@
+model_critical
+*bak.py
+bak/
+backup/
+.project
+.ptp-sync-folder
+.ptp-sync/
+.pydevproject
+.settings/
+
+*pyc

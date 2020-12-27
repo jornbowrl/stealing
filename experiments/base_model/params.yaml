@@ -1,0 +1,43 @@
+teacher:
+    model:
+        model_zoo: resnet20_cifar10
+        model_zoo_pretrained: true
+        model_customised: 
+        model_customised_pretrained: 
+
+student: 
+    model:
+        model_zoo: resnet20_cifar10
+        model_zoo_pretrained: false
+        model_customised: 
+        model_customised_pretrained: 
+
+    trainer:
+        name: KDTrainer
+        transform_name: transform_cifar
+        dataset_name: cifar10
+        is_train: true
+        batch_size: 64
+        num_workers: 4
+        cuda: true
+        gpu_ids: [0]
+        checkpoints_dir: "../experiments/base_model"
+        beta1: 0.1
+        lr: 0.03
+        lr_policy: step
+        lr_decay_iters: 1
+        continue_train: false
+        verbose: false
+        n_epochs: 100
+        n_epochs_decay: 100
+        epoch_count: 1
+        print_freq: 100
+        display_freq: 100
+        save_latest_freq: 5000
+        save_epoch_freq: 5
+        save_by_iter:
+#
+        alpha: 0.9
+        temperature: 20
+
+name: pytorch_example
