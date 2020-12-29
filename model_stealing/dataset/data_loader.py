@@ -33,10 +33,10 @@ def fetch_dataloader(trainset,shuffle=False,params=None):
 
     return trainset_dataloader 
 
-def transform_cifar(params_augmentation=None):
+def transform_cifar(params_augmentation=None,is_aug=True):
     
     # using random crops and horizontal flip for train set
-    if params_augmentation == "yes":
+    if is_aug:
         train_transformer = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),  # randomly flip image horizontally
@@ -57,10 +57,10 @@ def transform_cifar(params_augmentation=None):
 
     return train_transformer,dev_transformer
 
-def transform_cifar_v2(params_augmentation=None):
+def transform_cifar_non_normalize(is_aug):
     
     # using random crops and horizontal flip for train set
-    if params_augmentation == "yes":
+    if is_aug:
         train_transformer = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),  # randomly flip image horizontally
@@ -81,12 +81,12 @@ def transform_cifar_v2(params_augmentation=None):
 
     return train_transformer,dev_transformer
 
-def transform_imagenet(params_augmentation=None):
+def transform_imagenet(is_aug=True):
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])
     # using random crops and horizontal flip for train set
-    if params_augmentation == "yes":
+    if is_aug:
         train_transformer = transforms.Compose([
             transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),  # randomly flip image horizontally
@@ -118,7 +118,7 @@ class WarpCifar10(torchvision.datasets.cifar.CIFAR10):
             "A_input_lbl":item[1],
             "A_input_ids":x,
             }
-class WarpCifar100(WarpCifar10):
+class WarpCifar100(torchvision.datasets.cifar.CIFAR100):
     def __getitem__(self,x):
         item=super().__getitem__(x)
         return {
@@ -127,7 +127,7 @@ class WarpCifar100(WarpCifar10):
             "A_input_ids":x,
             }
 
-def create_dataset(params=None,is_train=True,is_shuffle=True ):
+def create_dataset(params=None,is_train=True,is_aug=True,is_shuffle=True ):
     """
     Fetch and return train/dev dataloader with hyperparameters (params.subset_percent = 1.)
     """
@@ -135,7 +135,10 @@ def create_dataset(params=None,is_train=True,is_shuffle=True ):
     transform_name= params.transform_name
     dataset_name = params.dataset_name
     is_train= params.is_train & is_train
-    
+    if hasattr(params,"augmentation"):
+        is_aug= is_aug & params.augmentation=="yes"
+        
+    is_aug = is_aug & is_train 
     is_shuffle = is_train & is_shuffle
     '''
     transform_name in [transform_cifar, transform_cifar_v2,transform_imagenet]
@@ -145,11 +148,11 @@ def create_dataset(params=None,is_train=True,is_shuffle=True ):
     
     train_tf ,val_tf=None,None,
     if transform_name=="transform_cifar":
-        train_tf ,val_tf = transform_cifar(params)
-    elif transform_name=="transform_cifar_v2":
-        train_tf ,val_tf = transform_cifar(params)
+        train_tf ,val_tf = transform_cifar(params,is_aug)
+    elif transform_name=="transform_cifar_non_normalize":
+        train_tf ,val_tf = transform_cifar_non_normalize(is_aug)
     elif transform_name=="transform_imagenet":
-        train_tf ,val_tf = transform_cifar(params)
+        train_tf ,val_tf = transform_imagenet(is_aug)
     else:
         raise Exception(f"unknown transform, transform_name={transform_name}")
 
@@ -168,7 +171,7 @@ def create_dataset(params=None,is_train=True,is_shuffle=True ):
     if dataset_name=="imagenet":
         raise Exception("wait for implementation")
     
- 
+    print (dataset_name,"::","is_train",is_train,"is_aug",is_aug,"is_shuffle",is_shuffle)
     dl= fetch_dataloader(trainset=dataset,shuffle=is_shuffle,params=params)
 
     return dl

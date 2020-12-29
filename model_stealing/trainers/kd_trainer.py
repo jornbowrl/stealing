@@ -55,19 +55,22 @@ class KDTrainer(BaseTrainer):
         self.A_input=kwargs.get("A_input",None) 
         self.A_input_lbl=kwargs.get("A_input_lbl",None)  
         self.A_input_ids=kwargs.get("A_input_ids",[])  
-#         self.A_input_idx=None 
+#         print (self.A_input_ids[:10],"idx--->") 
+#         print (self.A_input_ids[:10],"idx--->") 
         
-        self.A_output =kwargs.get("A_output",None)  
+        self.A_output =None#kwargs.get("A_output",None)  
         
-        self.B_output = kwargs.get("B_output",None) 
+        self.B_output =None# kwargs.get("B_output",None) 
 
         if self.B_output  is None :
-            assert self.A_input_ids is not None ,"expect the {type(self.A_input_ids)} not None"
+            assert self.A_input_ids is not None and  len(self.A_input_ids )==len(self.A_input),"expect the {type(self.A_input_ids)} not None"
             self.B_output = self.teacher_outputs[self.A_input_ids]
         pass 
     
     
     def optimize_parameters(self,**kwargs):
+        self.student_model.train()
+        
         self.optimizer_G.zero_grad()  # set G_A and G_B's gradients to zero
         
         self.forward(**kwargs)      # compute fake images and reconstruction images.
@@ -77,13 +80,28 @@ class KDTrainer(BaseTrainer):
     def backward_student(self,**kwargs):
         params = kwargs["params"]
         
-        self.output_teacher = None
+#         self.output_teacher = None
         #loss_real_D = self.criterionGAN(pred_real_tuple[0], True)
         
         self.loss_kd = loss_fn_kd(outputs=self.A_output , 
                labels=self.A_input_lbl, 
                teacher_outputs=self.B_output, 
                params=params,)
+        print ("===="*8)
+        print (self.B_output.shape,self.A_output.shape,self.A_input_lbl.shape)
+        
+        pre_vim_lbl =    torch.argmax(self.B_output,dim=-1)
+        gt_lbl      =    self.A_input_lbl 
+        pre_mic_lbl =    torch.argmax(self.A_output,dim=-1)
+        
+#         print (pre_vim_lbl[:10])
+#         print (gt_lbl[:10])
+#         print (pre_mic_lbl[:10])
+# #         print (pre1_lbl.shape,gt_lbl.shape,pre2_lbl.shape)
+#         print (torch.sum(pre_vim_lbl==gt_lbl),
+#                torch.sum(pre_mic_lbl==gt_lbl),
+#             len(pre_mic_lbl)
+#             ,"-----"*4)
 
     def forward(self,**kwargs):
         self.A_output = self.student_model .forward(self.A_input)

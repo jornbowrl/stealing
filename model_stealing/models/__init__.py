@@ -2,12 +2,14 @@
 
 
 # from .gan_base import Generator,Discriminator 
-# from .kd_instill import Net as kd_net 
 from torchvision.datasets import utils as dt_util 
-
+import json 
 import os 
 import torch 
- 
+import traceback
+
+from .kd_instill import Net as kd_net 
+
 def get_model(opt_model,device=None):
     if opt_model.model_zoo is not None :
         return get_net_pytorchcv(
@@ -15,10 +17,19 @@ def get_model(opt_model,device=None):
             device=device,
             pretrained=opt_model.model_zoo_pretrained)
     
+    args =opt_model.model_customised_args
+    
+    try :
+        args = json.loads(args) if args is not None else {}
+    except :
+        traceback.print_exc()
+        args ={}
+        
     return get_net_customised(
         model_name=opt_model.model_customised,
         device=device,
-        pretrained=opt_model.model_customised_pretrained
+        pretrained=opt_model.model_customised_pretrained,
+        **args,
         )
     
 
@@ -29,11 +40,14 @@ def get_net_pytorchcv(model_name="resnet20_cifar10",device=None,pretrained=True)
         net = net.to(device)
     return net     
     
-def get_net_customised(model_name="kd_net",net=None,device=None,pretrained=None,experiment_cach_dir="~/.cache",**kwargs):
+def get_net_customised(model_name="kd_net",
+                       device=None,pretrained=None,
+                       experiment_cach_dir="~/.cache",**model_args):
     
-#     if model_name=="kd_net":
-#         net= kd_net(**kwargs)
-    
+    if model_name=="kd_net":
+        net= kd_net(**model_args)
+    else :
+        raise Exception(f"Unknow model name ={model_name}")
     if experiment_cach_dir is not None :
         experiment_cach_dir= os.path.expanduser(experiment_cach_dir)
     
@@ -44,7 +58,7 @@ def get_net_customised(model_name="kd_net",net=None,device=None,pretrained=None,
         ckp= torch.load(x,map_location=device)
         #net= net.load_state_dict(ckp)
         return net 
-    load_func = kwargs.get("load_func", default_load_func )
+    load_func = model_args.get("load_func", default_load_func )
 
     if type(pretrained)==str:
         if "://" in pretrained:
