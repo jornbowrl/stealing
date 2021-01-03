@@ -7,11 +7,11 @@ import torch.nn as nn
 
 
 
-def loss_fn_kd(outputs, labels, teacher_outputs, params):
+def loss_fn_kd(outputs, labels, victim_outputs, params):
     """
     Compute the knowledge-distillation (KD) loss given outputs, labels.
     "Hyperparameters": temperature and alpha
-    NOTE: the KL Divergence for PyTorch comparing the softmaxs of teacher
+    NOTE: the KL Divergence for PyTorch comparing the softmaxs of victim
     and student expects the input tensor to be log probabilities! See Issue #2
     """
     '''
@@ -20,16 +20,16 @@ def loss_fn_kd(outputs, labels, teacher_outputs, params):
     alpha = params.alpha
     T = params.temperature
     KD_loss = nn.KLDivLoss()(F.log_softmax(outputs/T, dim=1),
-                             F.softmax(teacher_outputs/T, dim=1)) * (alpha * T * T) + \
+                             F.softmax(victim_outputs/T, dim=1)) * (alpha * T * T) + \
               F.cross_entropy(outputs, labels) * (1. - alpha)
 
     return KD_loss
 
-def loss_fn(outputs, labels, teacher_outputs, params):
+def loss_fn(outputs, labels, victim_outputs, params):
     """
     Compute the knowledge-distillation (KD) loss given outputs, labels.
     "Hyperparameters": temperature and alpha
-    NOTE: the KL Divergence for PyTorch comparing the softmaxs of teacher
+    NOTE: the KL Divergence for PyTorch comparing the softmaxs of victim
     and student expects the input tensor to be log probabilities! See Issue #2
     """
     '''
@@ -40,7 +40,7 @@ def loss_fn(outputs, labels, teacher_outputs, params):
 #     alpha = params.alpha
 #     T = params.temperature
 #     KD_loss = nn.KLDivLoss()(F.log_softmax(outputs/T, dim=1),
-#                              F.softmax(teacher_outputs/T, dim=1)) * (alpha * T * T) + \
+#                              F.softmax(victim_outputs/T, dim=1)) * (alpha * T * T) + \
 #                * (1. - alpha)
 # 
 #     return KD_loss
@@ -51,17 +51,17 @@ to_np =  lambda x: x.cpu().numpy() if  torch.is_tensor(x) else x
 
 class KDTrainer(BaseTrainer):
  
-    def __init__(self,victim_net,synthenic_net,opt,**kwargs):
+    def __init__(self,victim_net,thief_net,opt,**kwargs):
         BaseTrainer.__init__(self,opt)
 
         self.criterionIdt = torch.nn.L1Loss()
 
         
-#         self.teacher_model = victim_net#.to(deivce)
-        self.net_student = synthenic_net
+#         self.victim_model = victim_net#.to(deivce)
+        self.net_student = thief_net
         
         self.net_student  = self.net_student .to(device)
-#         self.set_requires_grad(self.teacher_model,requires_grad=False)
+#         self.set_requires_grad(self.victim_model,requires_grad=False)
 #         self.set_requires_grad(self.net_student,requires_grad=False)
         
 
@@ -74,7 +74,8 @@ class KDTrainer(BaseTrainer):
         
         
         
-        self.teacher_outputs = kwargs.get("teacher_outputs",[]) 
+        self.victim_outputs = kwargs.get("victim_outputs",None) 
+        assert self.victim_outputs is not None ,"expect the victim_outputs not None"
 
         self.loss_names=["kd"]
         self.visual_names=["A_input"]
@@ -96,7 +97,7 @@ class KDTrainer(BaseTrainer):
 
         if self.B_output  is None :
             assert self.A_input_ids is not None and  len(self.A_input_ids )==len(self.A_input),"expect the {type(self.A_input_ids)} not None"
-            self.B_output = self.teacher_outputs[self.A_input_ids]
+            self.B_output = self.victim_outputs[self.A_input_ids]
         
         
          
@@ -124,11 +125,11 @@ class KDTrainer(BaseTrainer):
         
 #         self.loss_kd = loss_fn(outputs=self.A_output , 
 #                labels=self.A_input_lbl, 
-#                teacher_outputs=self.B_output, 
+#                victim_outputs=self.B_output, 
 #                params=params,)
         self.loss_kd = loss_fn_kd(outputs=self.A_output , 
                labels=self.A_input_lbl, 
-               teacher_outputs=self.B_output, 
+               victim_outputs=self.B_output, 
                params=params,)
         self.loss_kd.backward()
         

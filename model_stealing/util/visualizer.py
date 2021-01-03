@@ -194,7 +194,7 @@ class Visualizer():
     It uses a Python library 'visdom' for display, and a Python library 'dominate' (wrapped in 'HTML') for creating HTML files with images.
     """
 
-    def __init__(self, opt):
+    def __init__(self,name, opt):
         """Initialize the Visualizer class
         Parameters:
             opt -- stores all the experiment flags; needs to be a subclass of BaseOptions
@@ -211,7 +211,7 @@ class Visualizer():
         self.display_id =opt.display_id if hasattr(opt,"display_id") else 0 
         self.use_html = opt.is_train and not opt.no_html
         self.win_size = opt.display_winsize
-        self.name = opt.name
+        self.name = name
         self.port = opt.display_port
         self.saved = False
         if self.display_id > 0:  # connect to a visdom server given <display_port> and <display_server>

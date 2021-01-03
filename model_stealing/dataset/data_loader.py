@@ -29,7 +29,7 @@ def fetch_dataloader(trainset,shuffle=False,params=None):
 
     trainset_dataloader = torch.utils.data.DataLoader(trainset, batch_size=params.batch_size,
             sampler=train_sampler,
-        shuffle=shuffle, num_workers=params.num_workers, pin_memory=params.cuda)
+        shuffle=shuffle, num_workers=params.num_workers, pin_memory=torch.cuda.is_available())
 
     return trainset_dataloader 
 
@@ -118,6 +118,9 @@ class WarpCifar10(torchvision.datasets.cifar.CIFAR10):
             "A_input_lbl":item[1],
             "A_input_ids":x,
             }
+#     def __len__(self):
+#         return 1000
+    
 class WarpCifar100(torchvision.datasets.cifar.CIFAR100):
     def __getitem__(self,x):
         item=super().__getitem__(x)

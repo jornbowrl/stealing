@@ -1,13 +1,13 @@
-teacher:
+victim:
     model:
         model_zoo: resnet20_cifar10
         model_zoo_pretrained: true
         model_customised: 
         model_customised_pretrained: 
     evaluator:
-        name: EvaluateBase
+        class_name: EvaluateBase
 
-student: 
+thief: 
     model:
 #        model_zoo: resnet20_cifar10
 #        model_zoo_pretrained: false
@@ -21,15 +21,15 @@ student:
         model_customised_args: 
         model_customised_pretrained: 
     evaluator:
-        name: EvaluateBase
+        class_name: EvaluateBase
     trainer:
-        name: KDTrainer
+        class_name: KDTrainer
         transform_name: transform_cifar
 ##  transform_name in ["transform_cifar","transform_cifar_non_normalize","transform_imagenet"]
         dataset_name: cifar10
 ##  limited support the ["cifar10","cifar100",], will support the imagenet in future
         is_train: true
-        batch_size: 64
+        batch_size: 256
         num_workers: 4
         cuda: true
         gpu_ids: [0]

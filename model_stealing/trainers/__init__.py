@@ -3,7 +3,7 @@ from .kd_trainer import KDTrainer
 
 
 def create_trainer(opt,**kwargs):
-    if opt.name=="KDTrainer":
+    if opt.class_name=="KDTrainer":
         return KDTrainer(opt=opt,**kwargs)
     
     raise Exception(f"unknow trainer name {opt.name}")
