@@ -49,8 +49,8 @@ thief:
         n_epochs: 100
         n_epochs_decay: 100
         epoch_count: 1
-        print_freq: 100 #frequency of showing training results on screen
-        display_freq: 100 #frequency of showing training results on console
+        print_freq: 500 #frequency of showing training results on screen
+        display_freq: 500 #frequency of showing training results on console
         save_latest_freq: 5000 #frequency of saving the latest results'
         save_epoch_freq: 5 #frequency of saving checkpoints at the end of epochs
         save_by_iter: #whether saves model by iteration
