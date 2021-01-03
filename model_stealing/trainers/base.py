@@ -91,17 +91,26 @@ class BaseTrainer(ABC):
         """Make models eval mode during test time"""
         for name in self.model_names:
             if isinstance(name, str):
-                net = getattr(self, 'net' + name)
+                net = getattr(self, 'net_' + name)
                 net.eval()
 
-    def test(self):
+    def train(self):
+        """Make models eval mode during test time"""
+        for name in self.model_names:
+            if isinstance(name, str):
+                net = getattr(self, 'net_' + name)
+                net.train()
+
+    @abstractmethod
+    def evaluate(self):
         """Forward function used in test time.
         This function wraps <forward> function in no_grad() so we don't save intermediate steps for backprop
         It also calls <compute_visuals> to produce additional visualization results
         """
-        with torch.no_grad():
-            self.forward()
-            self.compute_visuals()
+        pass 
+#         with torch.no_grad():
+#             self.forward()
+#             self.compute_visuals()
 
     def compute_visuals(self):
         """Calculate additional output images for visdom and HTML visualization"""
@@ -148,11 +157,15 @@ class BaseTrainer(ABC):
             if isinstance(name, str):
                 save_filename = '%s_net_%s.pth' % (epoch, name)
                 save_path = os.path.join(self.save_dir, save_filename)
-                net = getattr(self, 'net' + name)
+                net = getattr(self, 'net_' + name)
 
                 if len(self.gpu_ids) > 0 and torch.cuda.is_available():
-                    torch.save(net.module.cpu().state_dict(), save_path)
-                    net.cuda(self.gpu_ids[0])
+                    if hasattr(net,"module"):
+                        torch.save(net.module.cpu().state_dict(), save_path)
+                    else :
+                        torch.save(net.cpu().state_dict(), save_path)
+                        
+                    net.cuda()#(self.gpu_ids[0])
                 else:
                     torch.save(net.cpu().state_dict(), save_path)
 
@@ -179,7 +192,7 @@ class BaseTrainer(ABC):
             if isinstance(name, str):
                 load_filename = '%s_net_%s.pth' % (epoch, name)
                 load_path = os.path.join(self.save_dir, load_filename)
-                net = getattr(self, 'net' + name)
+                net = getattr(self, 'net_' + name)
                 if isinstance(net, torch.nn.DataParallel):
                     net = net.module
                 print('loading the model from %s' % load_path)
@@ -202,7 +215,7 @@ class BaseTrainer(ABC):
         print('---------- Networks initialized -------------')
         for name in self.model_names:
             if isinstance(name, str):
-                net = getattr(self, 'net' + name)
+                net = getattr(self, 'net_' + name)
                 num_params = 0
                 for param in net.parameters():
                     num_params += param.numel()

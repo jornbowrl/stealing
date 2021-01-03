@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 #https://github.com/peterliht/knowledge-distillation-pytorch/blob/master/model/net.py
-class Net(nn.Module):
+class KDInstillNet(nn.Module):
     """
     This is the standard way to define your own network in PyTorch. You typically choose the components
     (e.g. LSTMs, linear layers etc.) of your network in the __init__ function. You then apply these layers
@@ -21,7 +21,7 @@ class Net(nn.Module):
         Args:
             params: (Params) contains num_channels
         """
-        super(Net, self).__init__()
+        super(KDInstillNet, self).__init__()
         params_num_channels = num_channels
         params_dropout_rate = dropout_rate 
         
@@ -71,51 +71,51 @@ class Net(nn.Module):
 
         return s
 
-def loss_fn(outputs, labels):
-    """
-    Compute the cross entropy loss given outputs and labels.
-    Args:
-        outputs: (Variable) dimension batch_size x 6 - output of the model
-        labels: (Variable) dimension batch_size, where each element is a value in [0, 1, 2, 3, 4, 5]
-    Returns:
-        loss (Variable): cross entropy loss for all images in the batch
-    Note: you may use a standard loss function from http://pytorch.org/docs/master/nn.html#loss-functions. This example
-          demonstrates how you can easily define a custom loss function.
-    """
-    return nn.CrossEntropyLoss()(outputs, labels)
-
-
-def loss_fn_kd(outputs, labels, teacher_outputs, params):
-    """
-    Compute the knowledge-distillation (KD) loss given outputs, labels.
-    "Hyperparameters": temperature and alpha
-    NOTE: the KL Divergence for PyTorch comparing the softmaxs of teacher
-    and student expects the input tensor to be log probabilities! See Issue #2
-    """
-    alpha = params.alpha
-    T = params.temperature
-    KD_loss = nn.KLDivLoss()(F.log_softmax(outputs/T, dim=1),
-                             F.softmax(teacher_outputs/T, dim=1)) * (alpha * T * T) + \
-              F.cross_entropy(outputs, labels) * (1. - alpha)
-
-    return KD_loss
-
-
-def accuracy(outputs, labels):
-    """
-    Compute the accuracy, given the outputs and labels for all images.
-    Args:
-        outputs: (np.ndarray) output of the model
-        labels: (np.ndarray) [0, 1, ..., num_classes-1]
-    Returns: (float) accuracy in [0,1]
-    """
-    outputs = np.argmax(outputs, axis=1)
-    return np.sum(outputs==labels)/float(labels.size)
-
-
-# maintain all metrics required in this dictionary- these are used in the training and evaluation loops
-metrics = {
-    'accuracy': accuracy,
-    # could add more metrics such as accuracy for each token type
-}
+# def loss_fn(outputs, labels):
+#     """
+#     Compute the cross entropy loss given outputs and labels.
+#     Args:
+#         outputs: (Variable) dimension batch_size x 6 - output of the model
+#         labels: (Variable) dimension batch_size, where each element is a value in [0, 1, 2, 3, 4, 5]
+#     Returns:
+#         loss (Variable): cross entropy loss for all images in the batch
+#     Note: you may use a standard loss function from http://pytorch.org/docs/master/nn.html#loss-functions. This example
+#           demonstrates how you can easily define a custom loss function.
+#     """
+#     return nn.CrossEntropyLoss()(outputs, labels)
+# 
+# 
+# def loss_fn_kd(outputs, labels, teacher_outputs, params):
+#     """
+#     Compute the knowledge-distillation (KD) loss given outputs, labels.
+#     "Hyperparameters": temperature and alpha
+#     NOTE: the KL Divergence for PyTorch comparing the softmaxs of teacher
+#     and student expects the input tensor to be log probabilities! See Issue #2
+#     """
+#     alpha = params.alpha
+#     T = params.temperature
+#     KD_loss = nn.KLDivLoss()(F.log_softmax(outputs/T, dim=1),
+#                              F.softmax(teacher_outputs/T, dim=1)) * (alpha * T * T) + \
+#               F.cross_entropy(outputs, labels) * (1. - alpha)
+# 
+#     return KD_loss
+# 
+# 
+# def accuracy(outputs, labels):
+#     """
+#     Compute the accuracy, given the outputs and labels for all images.
+#     Args:
+#         outputs: (np.ndarray) output of the model
+#         labels: (np.ndarray) [0, 1, ..., num_classes-1]
+#     Returns: (float) accuracy in [0,1]
+#     """
+#     outputs = np.argmax(outputs, axis=1)
+#     return np.sum(outputs==labels)/float(labels.size)
+# 
+# 
+# # maintain all metrics required in this dictionary- these are used in the training and evaluation loops
+# metrics = {
+#     'accuracy': accuracy,
+#     # could add more metrics such as accuracy for each token type
+# }
 

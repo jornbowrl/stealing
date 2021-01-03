@@ -6,11 +6,57 @@ import numpy as np
 import torch 
 
 
-class Evaluate(ABC):
+def accuracyBase(outputs, labels,argmax_dim=-1):
+    """
+    Compute the accuracy, given the outputs and labels for all images.
+    Args:
+        outputs: (np.ndarray) output of the model
+        labels: (np.ndarray) [0, 1, ..., num_classes-1]
+    Returns: (float) accuracy in [0,1]
+    """
+    pred=torch.argmax(outputs,dim=argmax_dim)
+#     outputs = np.argmax(outputs, axis=1)
+    acc=torch.eq(pred,labels).float().mean()
     
-    
+    return float(acc) 
+    return np.sum(outputs==labels)/float(labels.size)
+
+
+# maintain all metrics required in this dictionary- these are used in the training and evaluation loops
+metricsBase = {
+    'accuracy': accuracyBase,
+    # could add more metrics such as accuracy for each token type
+}
+class EvaluateBase(ABC):
+
+    def __init__(self,namespace="teacher",return_massive=True):
+        '''
+        namespace : prefix of k:v 
+        return_massive : True/False 
+            True -- > the logits and index to be returned 
+            False --> otherwise 
+        '''
+        self.namespace=namespace
+        self.return_massive= return_massive
+        
     @staticmethod
-    def evaluate(model, dataloader, metrics, loss_fn=None ,verbose=True, params=None,
+    def to_dataloader(dataset,batch_size=512,):
+            
+        if not hasattr(dataset,"batch_size"):
+            if type(dataset) in [tuple,list]:
+                dataset=[to_torch(x) for x in dataset]
+            elif type(dataset) ==np.ndarray :
+                dataset = [to_torch(x) ]
+            dataset =torch.utils.data.TensorDataset(*dataset)
+            
+            return  torch.utils.data.DataLoader(dataset,batch_size=batch_size)
+        return dataset 
+    
+
+    
+    def evaluate(self,model, dataloader, metrics=None, loss_fn=None ,
+                 fetch_func=lambda x:(x["A_input"],x["A_input_lbl"],x["A_input_ids"])
+                 ,verbose=True, params=None,
                  device= torch.device("cuda" if torch.cuda.is_available() else "cpu"),
                  **kwargs):
         """Evaluate the model on `num_steps` batches.
@@ -22,7 +68,12 @@ class Evaluate(ABC):
             params: (Params) hyperparameters
             num_steps: (int) number of batches to train on, each of size params.batch_size
         """
-    
+        if metrics is None :
+            metrics = metricsBase
+
+        dataloader = self.to_dataloader(dataloader)
+
+        
         # set model to evaluation mode
         model.to(device)
         model.eval()
@@ -31,11 +82,16 @@ class Evaluate(ABC):
         summ = []
         progress=None
         if verbose :
-            progress = tqdm.tqdm(total=len(dataloader) ,desc="evaluate")
+            progress = tqdm.tqdm(total=len(dataloader) ,desc=f"{self.namespace} evaluate")
+
+        teacher_outputs_list=[]
+        teacher_outputs_idx_list=[]
+    
+
         with torch.no_grad():
             # compute metrics over the dataset
             for data_one in dataloader:
-                data_batch, labels_batch = data_one 
+                data_batch, labels_batch,idx  =fetch_func( data_one )
                 # move to GPU if available
     #             if params.cuda:
                 data_batch, labels_batch = data_batch.to(device), labels_batch.to(device)
@@ -46,26 +102,49 @@ class Evaluate(ABC):
                 output_batch = model(data_batch)
         
                 # extract data from torch Variable, move to cpu, convert to numpy arrays
-                output_batch = output_batch.data.cpu().numpy()
-                labels_batch = labels_batch.data.cpu().numpy()
+                output_batch = output_batch.data.cpu()#.numpy()
+                labels_batch = labels_batch.data.cpu()#.numpy()
         
-                if loss_fn is not None :
-                    loss = loss_fn(output_batch, labels_batch)
-                    summary_batch['loss'] = loss.item()
                 # compute all metrics on this batch
                 summary_batch = {metric: metrics[metric](output_batch, labels_batch)
                                  for metric in metrics}
+                
+                if loss_fn is not None :
+                    loss = loss_fn(output_batch, labels_batch)
+                    summary_batch['loss'] = loss.item()
+                
                 summ.append(summary_batch)
         
                 if verbose :
                     progress.update(1)
-        
+
+                if self.return_massive:
+                    teacher_outputs_list.append(output_batch.cpu())
+                    teacher_outputs_idx_list.append(idx.cpu())
+
         # compute mean of all metrics in summary
-        metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]} 
+#         metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]} 
+        metrics_mean = {f"{self.namespace}_{metric}":np.mean([x[metric] for x in summ]) for metric in summ[0]} 
+        
         metrics_string = " ; ".join("{}: {:05.3f}".format(k, v) for k, v in metrics_mean.items())
         logging.info(f"- Eval metrics : " + metrics_string)
-        return metrics_mean
+        print ("------------------------------------")
+        print(f"- Eval metrics : " + metrics_string)
+
+        if self.return_massive:
+            teacher_outputs_list = torch.cat(teacher_outputs_list)
+            teacher_outputs_idx_list = torch.cat(teacher_outputs_idx_list)
+            teacher_outputs_idx_list = teacher_outputs_idx_list.long()
     
+            assert torch.all(torch.eq(teacher_outputs_idx_list, torch.arange(0,len(teacher_outputs_idx_list)).long())) ,f"{teacher_outputs_idx_list[:10]} == {torch.range(0,len(teacher_outputs_idx_list)-1).long()[:10]}"
+            assert len(teacher_outputs_idx_list)==len(teacher_outputs_list),"the index len same as len of output, but {len(teacher_outputs_idx_list)}!={len(teacher_outputs_list)}"
+
+#         return metrics_mean
+        return {
+            "logits":teacher_outputs_list ,
+            "index":teacher_outputs_idx_list,
+            "loss":metrics_mean,
+            }
     
 if __name__=="__main__":
     import sys 

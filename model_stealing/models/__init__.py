@@ -8,7 +8,14 @@ import os
 import torch 
 import traceback
 
-from .kd_instill import Net as kd_net 
+from .kd_instill import KDInstillNet
+from .densenet import DenseNet 
+from .preresnet import PreResNet 
+# from .resnet import ResNet 
+# from .resnet import ResNet18, ResNet34,ResNet50,ResNet101,ResNet152
+from . import resnet as resnetFactory #import ResNet18, ResNet34,ResNet50,ResNet101,ResNet152
+from .resnext import CifarResNeXt 
+from .wrn import WideResNet
 
 def get_model(opt_model,device=None):
     if opt_model.model_zoo is not None :
@@ -44,8 +51,24 @@ def get_net_customised(model_name="kd_net",
                        device=None,pretrained=None,
                        experiment_cach_dir="~/.cache",**model_args):
     
-    if model_name=="kd_net":
-        net= kd_net(**model_args)
+    if model_name=="KDInstillNet":
+        net= KDInstillNet(**model_args)
+    elif model_name=="DenseNet":
+        net= DenseNet(**model_args)
+    elif model_name=="PreResNet":
+        net= PreResNet(**model_args)
+    elif model_name in ["ResNet18", 
+                        "ResNet34","ResNet50",
+                        "ResNet101","ResNet152"] :
+#         class_name= model_name
+        class_name= getattr(resnetFactory, model_name)
+
+#         ResNet18, ResNet34,ResNet50,ResNet101,ResNet152
+        net= class_name(**model_args)
+    elif model_name=="CifarResNeXt":
+        net= CifarResNeXt(**model_args)
+    elif model_name=="WideResNet":
+        net= WideResNet(**model_args)
     else :
         raise Exception(f"Unknow model name ={model_name}")
     if experiment_cach_dir is not None :

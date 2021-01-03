@@ -4,6 +4,8 @@ teacher:
         model_zoo_pretrained: true
         model_customised: 
         model_customised_pretrained: 
+    evaluator:
+        name: EvaluateBase
 
 student: 
     model:
@@ -13,9 +15,13 @@ student:
 #        model_customised_pretrained: 
         model_zoo: 
         model_zoo_pretrained: 
-        model_customised: kd_net
+#        model_customised: KDInstillNet
+#        model_customised_args: '{"num_channels": 32, "dropout_rate": 0.5}'
+        model_customised: ResNet18
+        model_customised_args: 
         model_customised_pretrained: 
-        model_customised_args: '{"num_channels": 32, "dropout_rate": 0.5}'
+    evaluator:
+        name: EvaluateBase
     trainer:
         name: KDTrainer
         transform_name: transform_cifar
@@ -31,11 +37,11 @@ student:
 ##  finetune params 
         checkpoints_dir: "../experiments/base_model"
         beta1: 0.1
-        lr: 0.3
+        lr: 0.001
         lr_policy: step
         lr_decay_iters: 2
-        alpha: 0.9
-        temperature: 20
+        alpha: 0.5
+        temperature: 5
 ##  finetune params 
 ## =========end======== 
         continue_train: false
