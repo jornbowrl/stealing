@@ -28,9 +28,10 @@ class BaseTrainer(ABC):
             -- self.optimizers (optimizer list):    define and initialize optimizers. You can define one optimizer for each network. If two networks are updated at the same time, you can use itertools.chain to group them. See cycle_gan_model.py for an example.
         """
         self.opt = opt
-        self.gpu_ids = opt.gpu_ids
+#         self.gpu_ids = opt.gpu_ids
         self.is_train = opt.is_train
-        self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')  # get device name: CPU or GPU
+#         self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')  # get device name: CPU or GPU
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')  # get device name: CPU or GPU
 
         checkpoints_dir = os.path.expanduser(opt.checkpoints_dir)
         checkpoints_dir = os.path.normpath(os.path.abspath(checkpoints_dir) )
@@ -159,7 +160,8 @@ class BaseTrainer(ABC):
                 save_path = os.path.join(self.save_dir, save_filename)
                 net = getattr(self, 'net_' + name)
 
-                if len(self.gpu_ids) > 0 and torch.cuda.is_available():
+                #if len(self.gpu_ids) > 0 and torch.cuda.is_available():
+                if  torch.cuda.is_available():
                     if hasattr(net,"module"):
                         torch.save(net.module.cpu().state_dict(), save_path)
                     else :

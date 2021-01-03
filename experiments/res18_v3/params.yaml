@@ -1,0 +1,59 @@
+victim:
+    model:
+        model_zoo: resnet20_cifar10
+        model_zoo_pretrained: true
+        model_customised: 
+        model_customised_pretrained: 
+    evaluator:
+        class_name: EvaluateBase
+
+thief: 
+    model:
+#        model_zoo: resnet20_cifar10
+#        model_zoo_pretrained: false
+#        model_customised: 
+#        model_customised_pretrained: 
+        model_zoo: 
+        model_zoo_pretrained: 
+#        model_customised: KDInstillNet
+#        model_customised_args: '{"num_channels": 32, "dropout_rate": 0.5}'
+        model_customised: ResNet18
+        model_customised_args: 
+        model_customised_pretrained: 
+    evaluator:
+        class_name: EvaluateBase
+    trainer:
+        class_name: KDTrainer
+        transform_name: transform_cifar
+##  transform_name in ["transform_cifar","transform_cifar_non_normalize","transform_imagenet"]
+        dataset_name: cifar10
+##  limited support the ["cifar10","cifar100",], will support the imagenet in future
+        is_train: true
+        batch_size: 256
+        num_workers: 4
+        cuda: true
+        gpu_ids: [0]
+## =========finetune start======== 
+##  finetune params 
+        checkpoints_dir: "../experiments/base_model"
+        beta1: 0.1
+        lr: 0.001
+        lr_policy: step
+        lr_decay_iters: 2
+        alpha: 0.5
+        temperature: 5
+##  finetune params 
+## =========end======== 
+        continue_train: false
+        verbose: false
+        n_epochs: 100
+        n_epochs_decay: 100
+        epoch_count: 1
+        print_freq: 500 #frequency of showing training results on screen
+        display_freq: 500 #frequency of showing training results on console
+        save_latest_freq: 5000 #frequency of saving the latest results'
+        save_epoch_freq: 5 #frequency of saving checkpoints at the end of epochs
+        save_by_iter: #whether saves model by iteration
+#print and visual, may not need to finetune
+
+name: base_kd
