@@ -161,13 +161,13 @@ def create_dataset(params=None,is_train=True,is_aug=True,is_shuffle=True ):
 
     if dataset_name=="cifar10":
         trans = train_tf if is_train else val_tf
-        dataset = WarpCifar10(root="~/.torch",transform=trans)
+        dataset = WarpCifar10(root="~/.torch",transform=trans,train=is_train)
 #         dataset = torchvision.datasets.cifar.CIFAR10(
 #             root="~/.torch",transform=trans)
     
     if dataset_name=="cifar100":
         trans = train_tf if is_train else val_tf
-        dataset = WarpCifar100(root="~/.torch",transform=trans)
+        dataset = WarpCifar100(root="~/.torch",transform=trans,train=is_train)
 #         dataset = torchvision.datasets.cifar.CIFAR100(
 #             root="~/.torch",transform=trans)
     
