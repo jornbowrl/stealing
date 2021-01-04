@@ -14,14 +14,14 @@ pip install -r req.txt
 *  A framework for exploring "shallow" and "deep" knowledge distillation (KD) experiments
 ![img](https://intellabs.github.io/distiller/imgs/knowledge_distillation.png)
 
-* formular 
+* formula 
 
 [<img src="./papers/kd/kd_loss_func.png" width="300" height="50" />]()
 [<img src="./papers/kd/kd_loss_func_text.png" width="400" height="35%" />]()
 [https://arxiv.org/pdf/1905.09747.pdf](reference)
 ### Finetune
 
-*  Edit the hypeparamater
+*  Edit the hyperparameter
  
 ```
 
@@ -48,8 +48,8 @@ sh run.sh
 
 ## Experiments
 * how to conduct the experiments' Param, read more detail from [param.md](./param.md)
-* reproducibility should be tracked by a noted hyperparam and a fixed random's seed  
-* use the visdom to facilitate visualization of data of supporting scientific experimentation. 
+* reproducibility should be tracked by a noted hyperparameter and a fixed random's seed  
+* use the Visdom to facilitate visualization of data of supporting scientific experimentation. 
 
 
 
