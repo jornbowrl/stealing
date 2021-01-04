@@ -1,5 +1,4 @@
-
-#The Model Stealing by knowledge Distillation and Generation Perturbance  
+# Model stole by knowledge Distillation or Perturbance driven Generation 
 
 ## Install and preparation 
 ```
@@ -9,22 +8,9 @@
 
 pip install -r req.txt
 ```
-## HypeParams
-* import the victim model from Zoo
 
-```
-model_zoo[str] and model_zoo_pretrained [bool]
-#https://github.com/osmr/imgclsmob/tree/master/pytorch
-```
-* customised the structure by nn.Module 
 
-```
-model_customised[str], model_customised_args [json_str] and model_customised_pretrained [http_url]
-#https://github.com/osmr/imgclsmob/tree/master/pytorch
-```
-https://intellabs.github.io/distiller/knowledge_distillation.html
-
-## KD
+### 1. KD
 *  A framework for exploring "shallow" and "deep" knowledge distillation (KD) experiments
 ![img](https://intellabs.github.io/distiller/imgs/knowledge_distillation.png)
 
@@ -33,9 +19,9 @@ https://intellabs.github.io/distiller/knowledge_distillation.html
 [<img src="./papers/kd/kd_loss_func.png" width="300" height="50" />]()
 [<img src="./papers/kd/kd_loss_func_text.png" width="400" height="35%" />]()
 [https://arxiv.org/pdf/1905.09747.pdf](reference)
-### finetune
+### Finetune
 
-*  edit the hypeparamater
+*  Edit the hypeparamater
  
 ```
 
@@ -46,11 +32,27 @@ sh run.sh
 
 ```
 
-## Params
 
-```
 
-```
+
+
+
+
+
+
+
+
+
+
+
+
+## Experiments
+* how to conduct the experiments' Param, read more detail from [param.md](./param.md)
+* reproducibility should be tracked by a noted hyperparam and a fixed random's seed  
+* use the visdom to facilitate visualization of data of supporting scientific experimentation. 
+
+
+
 
 ## Related Projects
 ** [ACGAN](https://arxiv.org/abs/1610.09585)
