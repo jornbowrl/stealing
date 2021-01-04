@@ -31,7 +31,7 @@ cd model_stealing
 sh run.sh 
 
 ```
-* Result 
+* Result (finished at 100% train data)
 
 
 
@@ -43,13 +43,28 @@ sh run.sh
 | resnet18             | 98.2%             |  93.7%            |  [3-layer-CNN](model_stealing/models/kd_instill.py)   |  - |73.22% |
 
 
+* future plan( Ablation study)
+
+| Thief    |subsample percentage  |  train_acc(Thief)        |  test_acc(Thief)        |
+|:-----------------:|:-----------------:|:-----------------:|:-----------------:|
+| resnet18 | 70% | ? | ? |
+| resnet18 | 50% | ? | ? |
+| resnet18 | 30% | ? | ? |
+| resnet18 | unbalanced class [0-7] [8,9 absence] | ? | ? |
 
 
+## 2. Perturbance and corrupation study 
+ The main difference between our work and prior works is that we identify the importance of noise, and aggressively inject noise to make the student better.
+ [google 1911.04252](https://arxiv.org/pdf/1911.04252.pdf)
+
+## 3. limit 
+* Extracting models with rich side information
 
 
+* Extracting models with less side information
 
-
-
+  For classification tasks, many service providers only output predicted class labels.
+  An adversary learning-based solution was developed where the context is to extract a linear classifier using only the predicted class labels. The main idea is to first approximate the classifier’s decision boundary. 
 
 
 
