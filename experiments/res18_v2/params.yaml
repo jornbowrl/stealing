@@ -17,7 +17,7 @@ thief:
         model_zoo_pretrained: 
 #        model_customised: KDInstillNet
 #        model_customised_args: '{"num_channels": 32, "dropout_rate": 0.5}'
-        model_customised: ResNet18
+        model_customised: ResNet34
         model_customised_args: 
         model_customised_pretrained: 
     evaluator:
@@ -36,11 +36,11 @@ thief:
 ## =========finetune start======== 
 ##  finetune params 
         checkpoints_dir: "../experiments/res18_v2"
-        beta1: 0.5
-        lr: 0.1
+        beta1: 0.1
+        lr: 0.01
         lr_policy: step
-        lr_decay_iters: 4
-        alpha: 0.5
+        lr_decay_iters: 10
+        alpha: 0.9
         temperature: 20
 ##  finetune params 
 ## =========end======== 

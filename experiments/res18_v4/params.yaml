@@ -17,8 +17,8 @@ thief:
         model_zoo_pretrained: 
 #        model_customised: KDInstillNet
 #        model_customised_args: '{"num_channels": 32, "dropout_rate": 0.5}'
-        model_customised: ResNet18
-        model_customised_args: 
+        model_customised: CifarResNeXt
+        model_customised_args: '{"num_channels": 32, "dropout_rate": 0.5}'
         model_customised_pretrained: 
     evaluator:
         class_name: EvaluateBase
@@ -35,7 +35,7 @@ thief:
         gpu_ids: [0]
 ## =========finetune start======== 
 ##  finetune params 
-        checkpoints_dir: "../experiments/base_model"
+        checkpoints_dir: "../experiments/res18_v4"
         beta1: 0.1
         lr: 0.001
         lr_policy: step
@@ -56,4 +56,4 @@ thief:
         save_by_iter: #whether saves model by iteration
 #print and visual, may not need to finetune
 
-name: base_kd
+name: res18_v4

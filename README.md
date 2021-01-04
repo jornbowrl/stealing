@@ -1,3 +1,4 @@
+
 #The Model Stealing by knowledge Distillation and Generation Perturbance  
 
 ## Install and preparation 
@@ -8,21 +9,38 @@
 
 pip install -r req.txt
 ```
+## HypeParams
+* import the victim model from Zoo
+
+```
+model_zoo[str] and model_zoo_pretrained [bool]
+#https://github.com/osmr/imgclsmob/tree/master/pytorch
+```
+* customised the structure by nn.Module 
+
+```
+model_customised[str], model_customised_args [json_str] and model_customised_pretrained [http_url]
+#https://github.com/osmr/imgclsmob/tree/master/pytorch
+```
+https://intellabs.github.io/distiller/knowledge_distillation.html
 
 ## KD
-* train with hyperparameter  
+*  A framework for exploring "shallow" and "deep" knowledge distillation (KD) experiments
+![img](https://intellabs.github.io/distiller/imgs/knowledge_distillation.png)
 
-* 1, edit the params
+* formular 
+
+[<img src="./papers/kd/kd_loss_func.png" width="300" height="50" />]()
+[<img src="./papers/kd/kd_loss_func_text.png" width="400" height="35%" />]()
+[https://arxiv.org/pdf/1905.09747.pdf](reference)
+### finetune
+
+*  edit the hypeparamater
  
 ```
 
 cat experiments/base_model/params.yaml  
-# please 
-```
-
-* 2, start the train epoches 
-
-```
+#start the train epoches 
 cd model_stealing
 sh run.sh 
 
