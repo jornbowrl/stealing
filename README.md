@@ -55,7 +55,9 @@ sh run.sh
 
 ## 2. Perturbance and corrupation study 
  The main difference between our work and prior works is that we identify the importance of noise, and aggressively inject noise to make the student better.
- [google 1911.04252](https://arxiv.org/pdf/1911.04252.pdf)
+![img](papers/data_genera.png)
+[google 1911.04252](https://arxiv.org/pdf/1911.04252.pdf)
+
 
 ## 3. limit 
 * Extracting models with rich side information
