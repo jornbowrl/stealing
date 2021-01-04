@@ -19,9 +19,9 @@ pip install -r req.txt
 [<img src="./papers/kd/kd_loss_func.png" width="300" height="50" />]()
 [<img src="./papers/kd/kd_loss_func_text.png" width="400" height="35%" />]()
 [https://arxiv.org/pdf/1905.09747.pdf](reference)
-### Finetune
+* Finetune
 
-*  Edit the hyperparameter
+ Edit the hyperparameter
  
 ```
 
@@ -31,7 +31,16 @@ cd model_stealing
 sh run.sh 
 
 ```
+* Result 
 
+
+
+| Victim              |  train_acc(Victim)        |  test_acc(Victim)      | Thief      |  train_acc(Thief)        |  test_acc(Thief)        | 
+| :------------------:    | :----------------: | :-----------------:|:-----------------:|:-----------------:|:-----------------:|
+| resnet18             | 98.2%             |  93.7%            |  [resnet18](model_stealing/models/resnet.py)   |  - |91.3% |
+| resnet18             | 98.2%             |  93.7%            |  [resnet34](model_stealing/models/resnet.py)   |  - |91.98% |
+| resnet18             | 98.2%             |  93.7%            |  [resnet50](model_stealing/models/resnet.py)   |  - |95.22% |
+| resnet18             | 98.2%             |  93.7%            |  [3-layer-CNN](model_stealing/models/kd_instill.py)   |  - |73.22% |
 
 
 
@@ -47,9 +56,9 @@ sh run.sh
 
 
 ## Experiments
-* how to conduct the experiments' Param, read more detail from [param.md](./param.md)
-* reproducibility should be tracked by a noted hyperparameter and a fixed random's seed  
-* use the Visdom to facilitate visualization of data of supporting scientific experimentation. 
+* How to conduct the experiments' Param, read more detail from [param.md](./param.md)
+* Reproducibility should be tracked by a noted hyperparameter and a fixed random's seed  
+* Use the Visdom to facilitate visualization of data of supporting scientific experimentation. 
 
 
 
